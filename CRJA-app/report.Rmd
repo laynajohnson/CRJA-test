@@ -1,0 +1,13 @@
+---
+title: "Test PDF Report"
+date: "`r Sys.Date()`"
+output: pdf_document
+params: 
+  n: "Default County"
+---
+
+# Test
+
+
+In **`r params$n`** county...
+
