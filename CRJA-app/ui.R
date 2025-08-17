@@ -5,6 +5,7 @@ library(shinythemes)
 library(shinyWidgets)
 
 
+library(shinyjs)
 
 counties <- c(
   "Alameda", "Alpine", "Amador", "Butte", "Calaveras", "Colusa", "Contra Costa", "Del Norte",
