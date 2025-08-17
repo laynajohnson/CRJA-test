@@ -3,11 +3,13 @@ title: "Test PDF Report"
 date: "`r Sys.Date()`"
 output: pdf_document
 params: 
-  n: "Default County"
+  county: "Default County"
+  ethrace: "Default Ethrace"
+  gender: "Default Gender"
 ---
 
 # Test
 
 
-In **`r params$n`** county...
+In **`r params$county`** county... for those who are **`r params$ethrace`** and **`r params$gender`**
 
