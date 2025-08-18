@@ -3,8 +3,6 @@
 library(shiny)
 library(shinythemes)
 library(shinyWidgets)
-
-
 library(shinyjs)
 
 counties <- c(

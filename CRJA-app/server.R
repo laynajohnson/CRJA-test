@@ -10,6 +10,8 @@ library(htmltools)
 # Define server logic for selections and downloads
 function(input, output, session) {
   
+  library(shinyjs)
+  
   report_ready <- reactiveVal(FALSE)
   
   shinyjs::disable("report") # disable download until ready
