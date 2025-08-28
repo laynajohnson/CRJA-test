@@ -3,13 +3,32 @@ title: "Test PDF Report"
 date: "`r Sys.Date()`"
 output: pdf_document
 params: 
-  county: "Default County"
-  ethrace: "Default Ethrace"
-  gender: "Default Gender"
+  county: "County Not Selected"
+  yearoffense: "Year of Offense Not Selected"
+  penalcode: "Penal Code Not Selected"
+  enhancements: "Enhancements not selected"
+  race: "Race Not Selected"
+  ethnicity: "Ethnicity Not Selected"
+  natorigin: "National Origin Not Selected"
 ---
 
 # Test
 
+*Case Details Provided*
 
-In **`r params$county`** county... for those who are **`r params$ethrace`** and **`r params$gender`**
-
+	County: **`r params$county`**
+	
+	Year of Conviction: **`r params$yearoffense`**
+	
+	Range: 
+	
+	Penal Code Sections:  **`r params$penalcode`**
+	
+	Enhancement(s) (Optional): **`r params$enhancements`**
+	
+	Race(s) of Interest: **`r params$race`**
+	
+  Ethnicity of Interest: **`r params$ethnicity`**
+  
+	National Origin of Interest: **`r params$natorigin`**
+	
