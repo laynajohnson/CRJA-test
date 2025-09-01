@@ -7,10 +7,10 @@ library(shinyjs)
 
 library(tidyverse)
 
+# Loading in the data and creating selection options
 test_data <- read_csv("randomly_selected_data.xlsx")
 
-counties <- c("Select Option",
-  "Alameda", "Alpine", "Amador", "Butte", "Calaveras", "Colusa", "Contra Costa", "Del Norte",
+counties <- c("Alameda", "Alpine", "Amador", "Butte", "Calaveras", "Colusa", "Contra Costa", "Del Norte",
   "El Dorado", "Fresno", "Glenn", "Humboldt", "Imperial", "Inyo", "Kern", "Kings", "Lake", "Lassen",
   "Los Angeles", "Madera", "Marin", "Mariposa", "Mendocino", "Merced", "Modoc", "Mono", "Monterey",
   "Napa", "Nevada", "Orange", "Placer", "Plumas", "Riverside", "Sacramento", "San Benito",
@@ -19,9 +19,7 @@ counties <- c("Select Option",
   "Stanislaus", "Sutter", "Tehama", "Trinity", "Tulare", "Tuolumne", "Ventura", "Yolo", "Yuba"
 )
 
-race <- unique(test_data$Race) # can recode vars Mexican and Cuban options to Hispanic
-
-ethnicity <- unique(test_data$Ethnicity) # A bit more confusing... what to do here?
+race <- unique(test_data$Race) 
 
 natorigin <- unique(test_data$`Place of Birth`) # can recode all of the states to be United States
 
@@ -58,7 +56,7 @@ fluidPage(
       titlePanel("California Racial Justice Act Dashboard")
   ),
 
-    # Sidebar with a drop down selection menu
+    # Sidebar with a drop down selection menu for user inputs
     sidebarLayout(
         sidebarPanel(
           width = 4,
@@ -97,12 +95,6 @@ fluidPage(
             selectize = TRUE
           ),
           selectInput(
-            "select_ethnicity",
-            "Select Ethnicity of Interest:",
-            choices = ethnicity,
-            selectize = TRUE
-          ),
-          selectInput(
             "select_natorigin",
             "Select Nation of Origin:",
             choices = natorigin,
@@ -116,6 +108,9 @@ fluidPage(
         mainPanel(
           h3("Using the Dashboard"),
           p("Disclaimer for intentions of the app and what the goals are..."),
+          br(),
+          h3("Overview"),
+          p("Some general stats based on user inputs. Will include a few charts, depending on the selections made in the menu to the side"),
           br(),
           h4("Download the generated report below:"),
           downloadButton("report", "Download Report", class = "btn-success", disabled = "disabled")
