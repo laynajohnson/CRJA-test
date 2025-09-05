@@ -21,14 +21,16 @@ counties <- c("Alameda", "Alpine", "Amador", "Butte", "Calaveras", "Colusa", "Co
 
 race <- unique(test_data$Race) 
 
-natorigin <- unique(test_data$`Place of Birth`) # can recode all of the states to be United States
+natorigin <- unique(test_data$`Place of Birth`)
 
 yearoffense <- 1970:2025
-# 
+
 penalcode <- unique(test_data$Offense)
 
 enhancements <- unique(test_data$Off_Enh1, test_data$Off_Enh2) %>%
   na.omit()
+
+sentencelen <- c("Len1", "Len2", "Len3") # Need to find out exactly how they want this to work
 
 
 # Define UI for application
@@ -98,6 +100,12 @@ fluidPage(
             "select_natorigin",
             "Select Nation of Origin:",
             choices = natorigin,
+            selectize = TRUE
+          ),
+          selectInput(
+            "select_sentencelen",
+            "Select Length of Sentence:",
+            choices = sentencelen,
             selectize = TRUE
           ),
           p('After selection, click the "Generate Report" button below to see statistics and generate a court-ready document for download.'),

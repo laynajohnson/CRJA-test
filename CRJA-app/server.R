@@ -16,16 +16,23 @@ function(input, output, session) {
   
   shinyjs::disable("report") # disable download until ready
   
+  # will make any number of selections into a 1-length character
+  scalarize <- function(x, collapse = ", ") {
+    if (length(x) == 0) return(NA_character_)
+    if (length(x) == 1) return(as.character(x))
+    paste(x, collapse = collapse)
+  }
+  
   # Generate the report and save data to csv
   observeEvent(input$generate, { #if the generate report event happens then do the following
-    Sys.sleep(1)  # pretend processing time, can remove or make longer
+    Sys.sleep(1.5)  # pretend processing time, can remove or make longer
     
     df <- data.frame(
       county      = input$select_county,
       race        = input$select_race,
       yearoffense = input$select_yearoffense,
-      penalcode   = input$select_penalcode,
-      enhancements = input$select_enhancements,
+      penalcode   = scalarize(input$select_penalcode),
+      enhancements = scalarize(input$select_enhancements),
       natorigin   = input$select_natorigin,
       timestamp   = Sys.Date(), # would it be helpful to know the website's traffic using this?
       stringsAsFactors = FALSE
@@ -51,6 +58,12 @@ function(input, output, session) {
       tempReport <- file.path(tempdir(), "report.Rmd")
       file.copy("report.Rmd", tempReport, overwrite = TRUE) # will overwrite the default report document and fill in the selected information
       
+      enh_val <- if(length(input$select_enhancements) == 0) {
+        "None Selected"
+      } else {
+        paste(input$select_enhancements, collapse = ", ")
+      }
+      
       rmarkdown::render(
         input = tempReport,
         output_file = file,
@@ -59,7 +72,7 @@ function(input, output, session) {
           race = input$select_race,
           yearoffense = input$select_yearoffense,
           penalcode = input$select_penalcode,
-          enhancements = input$select_enhancements,
+          enhancements = enh_val,
           natorigin = input$select_natorigin
         ),
         envir = new.env(parent = globalenv())

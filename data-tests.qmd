@@ -1,0 +1,43 @@
+---
+title: "Working with the data"
+format: html
+---
+
+# Loading Dependencies
+```{r packages}
+#| message: false
+library(tidyverse)
+library(ggplot2)
+```
+
+
+```{r load-data}
+#| message: false
+#| warning: false
+test_data <- read_csv("CRJA-app/randomly_selected_data.xlsx")
+```
+
+# The Data
+
+## Data Exploration
+
+```{r graph-explore}
+test_data %>%
+  count(Race)
+
+test_data %>%
+  count(`Place of Birth`)
+
+test_data %>%
+  count(`Sentencing County`)
+
+```
+
+## Visual Ideas for App
+
+race/ethnicity and penal codes
+
+- the graph will change depending on the penal code selected
+
+
+
