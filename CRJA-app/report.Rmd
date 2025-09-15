@@ -6,7 +6,6 @@ params:
   county: "County Not Selected"
   yearoffense: "Year of Offense Not Selected"
   penalcode: "Penal Code Not Selected"
-  enhancements: "Enhancements not selected"
   race: "Race/Ethnicity Not Selected"
   natorigin: "National Origin Not Selected"
 ---
@@ -22,8 +21,6 @@ Year of Conviction: **`r params$yearoffense`**
 Range: 
 
 Penal Code Sections:  **`r params$penalcode`**
-
-Enhancement(s) (Optional): **`r params$enhancements`**
 
 Race/Ethnicity of Interest: **`r params$race`**
 

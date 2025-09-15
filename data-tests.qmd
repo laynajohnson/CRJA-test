@@ -39,5 +39,10 @@ race/ethnicity and penal codes
 
 - the graph will change depending on the penal code selected
 
+OSPD colors:
 
+- Dark orange: #da6127
+- Med orange: #e18432
+- Yellow orange: #faa918
+- Purple: #605e9b
 
