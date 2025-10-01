@@ -145,6 +145,21 @@ function(input, output, session) {
       tempReport <- file.path(tempdir(), "report.Rmd") 
       file.copy("report.Rmd", tempReport, overwrite = TRUE) 
       
+      #Data frame to hold penal codes
+      penalcodes <- input$select_penalcode
+      if (length(penalcodes) == 0) penalcodes <- NA_character_
+      
+      penal_df <- do.call(rbind, lapply(penalcodes, function(code) {
+        data.frame(
+          penalcode      = code,
+          sentencelen    = input[[paste0("sentencelen_", code)]],
+          sentencemonths = input[[paste0("sentencemonths_", code)]],
+          servedconsec   = input[[paste0("servedconsec_", code)]],
+          stringsAsFactors = FALSE
+        )
+      }))
+      
+      # render
       rmarkdown::render(
         input = tempReport,
         output_file = file,
@@ -152,7 +167,7 @@ function(input, output, session) {
           county       = input$select_county,
           race         = input$select_race,
           yearoffense  = input$select_yearoffense,
-          penalcode    = input$select_penalcode,
+          penaldata   = penal_df,
           natorigin    = input$select_natorigin
         ),
         envir = new.env(parent = globalenv())

@@ -5,9 +5,14 @@ output: pdf_document
 params: 
   county: "County Not Selected"
   yearoffense: "Year of Offense Not Selected"
-  penalcode: "Penal Code Not Selected"
   race: "Race/Ethnicity Not Selected"
   natorigin: "Place of Birth Not Selected"
+  penaldata: !r data.frame(
+    penalcode = character(),
+    sentencelen = character(),
+    sentencemonths = character(),
+    servedconsec = character(),
+    stringsAsFactors = FALSE)
 ---
 
 # Test
@@ -18,11 +23,25 @@ County: **`r params$county`**
 
 Year of Conviction: **`r params$yearoffense`**
 
-Range: 
-
-Penal Code Sections:  **`r params$penalcode`**
+Range:
 
 Race/Ethnicity of Interest: **`r params$race`**
 
 National Origin of Interest: **`r params$natorigin`**
+
+Penal Code Details:
+
+```{r, echo=FALSE, results='asis'}
+invisible(lapply(1:nrow(params$penaldata), function(i) {
+  row <- params$penaldata[i, ]
+  cat(paste0(
+    "- **", row$penalcode, "** — ",
+    row$sentencelen, " ",
+    row$sentencemonths,
+    " (Consecutive: ", row$servedconsec, ")\n"
+  ))
+}))
+```
+
+
 
