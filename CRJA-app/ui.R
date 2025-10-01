@@ -9,7 +9,8 @@ library(tidyverse)
 library(plotly)
 
 # Loading in the data and creating selection options
-test_data <- read_csv("randomly_selected_data.xlsx")
+
+test_data <- read_csv("randomly_selected_data.xlsx") # everything taken from here for data values, will need to change to database instead
 
 counties <- c("Alameda", "Alpine", "Amador", "Butte", "Calaveras", "Colusa", "Contra Costa", "Del Norte",
   "El Dorado", "Fresno", "Glenn", "Humboldt", "Imperial", "Inyo", "Kern", "Kings", "Lake", "Lassen",
@@ -28,17 +29,12 @@ yearoffense <- 1970:2025
 
 penalcode <- test_data %>%
   dplyr::select(
-    Offense,
     `Offense Modifier`,
+    Offense,
     Off_Enh1, Off_Enh2, Off_Enh3, Off_Enh4, Off_Enh5
   ) %>%
   unlist(use.names = FALSE) %>%
   na.omit()
-
-# enhancements <- unique(test_data$Off_Enh1, test_data$Off_Enh2) %>%
-#   na.omit()
-
-sentencelen <- c("Low", "Middle", "High") # Need to find out exactly how they want this to work
 
 
 # Define UI for application
@@ -57,7 +53,7 @@ fluidPage(
       font-family: 'Lato', sans-serif;
       color: #222;
     }
-    h3 {
+    h2 {
       font-weight: 600; 
       color: #c45722
     }
@@ -75,8 +71,8 @@ fluidPage(
     /* Focus (after click) */
     .btn-success:focus,
     .btn-success.focus {
-      background-color: #e18432 !important;
-      border-color: #da6127 !important;
+      background-color: #da6127 !important;
+      border-color: #e18432 !important;
       color: white !important;
       box-shadow: none !important;
     }
@@ -109,7 +105,7 @@ fluidPage(
         div(
           style = "display: flex; align-items: center; justify-content: flex-start;",
           h1("California Racial Justice Act Dashboard",
-             style = "margin: 3; font-weight: 600; color: #444444")
+             style = "margin: 0.5; font-weight: 600; color: #444444")
         )
       )
     )
@@ -163,7 +159,7 @@ fluidPage(
         sidebarPanel(
           class = "dark-sidebar",
           width = 4,
-          h3(em("Create Court Report")),
+          h3(em(strong("Create Court Report", style = "color: #605e9b;"))),
           p("Select from the options in the menus below to fit the specific case. User can type to search and select options."),
           selectInput(
             "select_county",
@@ -177,22 +173,20 @@ fluidPage(
             choices = yearoffense,
             selectize = TRUE
           ),
-          selectizeInput(
-            inputId = "select_penalcode",
-            label = "Select Penal Code Sections/Enhancements:",
-            choices = NULL,        # start empty; populated in server
-            multiple = TRUE
+          
+          div(
+            p("Select Penal Code Sections / Enhancements:", style = "font-weight: bold;"),
+            p("Select every code associated with the case of interest. This section includes offense penal codes, offense modifiers, and enhancements.
+              Each code can only be selected once. Choose highest/most severe base sentence if necessary."),
+            selectizeInput(
+              inputId = "select_penalcode",
+              label = NULL,
+              choices = NULL,
+              multiple = TRUE
+            )
           ),
           uiOutput("penalcode_details"),
-          
-          # selectInput(
-          #   "select_enhancements",
-          #   "Select Enhancement(s) (Optional):",
-          #   choices = enhancements,
-          #   selectize = TRUE,
-          #   multiple = TRUE
-          # ),
-          
+        
           selectInput(
             "select_race",
             "Select Race of Interest:",
@@ -207,20 +201,27 @@ fluidPage(
           )
         ),
         
-    # Show results and download button (after generating report with action button)
+    # Show results and download button
         mainPanel(
-          h3("Using the Dashboard"),
-          p("Disclaimer for intentions of the app and what the goals are..."),
-          br(),
           fluidRow(
-            column(7, 
-                   h3("Overview"),
-                   p("Some general stats based on user inputs.")),
+            column(7,
+                   h2("Using the Dashboard"),
+                   h4("Step 1"),
+                   p("Make selections in the panel to the left. First select county and year of conviction for the case. Then select every penal code associated with
+            the case of interest. For each penal code selection made, a new menu will open asking for more details."),
+                   h4("Step 2"),
+                   p("For each menu associated with selected penal codes, select the sentence length in years and months. Life with parole and life without parole included.* Also select if the sentence was served consecutively or not.
+                     Then fill in the rest of selection menus as normal."),
+                   h4("Step 3", style = "margin-top: 10px;"),
+                   p('After each selection is made the report will update. Click the "Download Full Report" button to save
+            the entire report to device for printing. The report will contain any relevant disparity information compiled from selections.'),
+                   p("*Capital punishment (death penalty) not available for this tool. Please message OSPD for details.", style = "font-size: 12px; color: #555;")),
             column(5, 
                    h4("Download the generated report below:"),
-                   downloadButton("report", "Download Full Report", class = "btn-success"))
-          )
-      
-        )
+                   downloadButton("report", "Download Full Report", class = "btn-success", style = "padding: 8px 16px; font-size: 14px;"))
+          ),
+          br(),
+          h2("Overview"),
+          p("Some general stats based on user inputs."))
     )
 )

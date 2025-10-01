@@ -11,15 +11,15 @@ function(input, output, session) {
   
   #Combining the penal code, enhancements, and offense modifiers into one
   penalcode_df <- bind_rows(
+    tibble( # does missing § symbol make this not work?? why wont it show up??
+      value = as.character(na.omit(unique(test_data$`Offense Modifier`))),
+      label = as.character(na.omit(unique(test_data$`Offense Modifier`))),
+      optgroup = "Offense Modifier"
+    ),
     tibble(
       value = as.character(na.omit(unique(test_data$Offense))),
       label = as.character(na.omit(unique(test_data$Offense))),
       optgroup = "Offense"
-    ),
-    tibble(
-      value = as.character(na.omit(unique(test_data$`Offense Modifier`))),
-      label = as.character(na.omit(unique(test_data$`Offense Modifier`))),
-      optgroup = "Offense Modifier"
     ),
     tibble(
       value = as.character(na.omit(unique(c(
@@ -45,29 +45,8 @@ function(input, output, session) {
     server = TRUE
   )
   
-  output$penalcode_details <- renderUI({
-    req(input$select_penalcode)  # only run if something is selected
-    
-    # Loop over each selected penal code and create a UI block
-    lapply(input$select_penalcode, function(code) {
-      wellPanel(
-        h4(code),  # heading with the penal code value
-        selectInput(
-          inputId = paste0("sentencelen_", code),
-          label = "Sentence length:",
-          choices = c("0-1 years", "1-3 years", "3-5 years", "5+ years"),
-          selected = NULL
-        ),
-        radioButtons(
-          inputId = paste0("servedconsec_", code),
-          label = "Served consecutively?",
-          choices = c("Yes", "No", "Not sure"),
-          selected = NULL,
-          inline = TRUE
-        )
-      )
-    })
-  })
+  senyears <- c("0 years", "1 year", paste0(2:30, " years"), "Life with Parole", "Life without Parole")
+  
   
   output$penalcode_details <- renderUI({
     req(input$select_penalcode)  # only run if something is selected
@@ -75,65 +54,96 @@ function(input, output, session) {
     # Loop over each selected penal code and create a UI block
     lapply(input$select_penalcode, function(code) {
       wellPanel(
-        h4(code),  # heading with the penal code value
-        selectInput(
-          inputId = paste0("sentencelen_", code),
-          label = "Sentence length:",
-          choices = c("0-1 years", "1-3 years", "3-5 years", "5+ years"),
-          selected = NULL
+        h5(code),  # heading with the penal code value
+        p("Sentence Length"),
+        fluidRow(
+          column(
+            width = 4,
+            selectInput(
+              inputId = paste0("sentencelen_", code),
+              label = "Years:",
+              choices = senyears,
+              selected = NULL
+            )
+          ),
+          column(
+            width = 4,
+            selectInput(
+              inputId = paste0("sentencemonths_", code),
+              label = "Months:",
+              choices = c("0 months", "2 months", "4 months", "6 months", "8 months", "10 months"),
+              selected = NULL
+            )
+          )
         ),
         radioButtons(
           inputId = paste0("servedconsec_", code),
           label = "Served consecutively?",
           choices = c("Yes", "No", "Not sure"),
-          selected = NULL,
+          selected = "Not sure",
           inline = TRUE
         )
       )
     })
   })
   
-  # Helper to collapse multi-selects into a single string
-  scalarize <- function(x, collapse = ", ") {
-    if (length(x) == 0) return(NA_character_)
-    if (length(x) == 1) return(as.character(x))
-    paste(x, collapse = collapse)
+  # helper to generate next userID
+  next_userid <- function(file_path) {
+    # if file doesn't exist or is empty, start at 000001
+    if (!file.exists(file_path) || file.info(file_path)$size == 0) {
+      return(sprintf("%06d", 1))
+    } else {
+      existing <- read.csv(file_path, stringsAsFactors = FALSE)
+      if (nrow(existing) == 0) {
+        return(sprintf("%06d", 1))
+      } else {
+        last_id <- max(as.integer(existing$userID), na.rm = TRUE)
+        return(sprintf("%06d", last_id + 1))
+      }
+    }
   }
   
-  output$report <- downloadHandler(
+   # --- Saving to CSV ---
+   output$report <- downloadHandler(
     filename = "report.pdf",
     content = function(file) {
       
-      # --- Save selections to CSV ---
-      df <- data.frame(
-        county       = input$select_county,
-        race         = input$select_race,
-        yearoffense  = input$select_yearoffense,
-        penalcode    = scalarize(input$select_penalcode),
-        # enhancements = scalarize(input$select_enhancements),
-        natorigin    = input$select_natorigin,
-        timestamp    = Sys.Date(),
-        stringsAsFactors = FALSE
-      )
-      
       file_path <- "selections.csv"
+      userID <- next_userid(file_path)
+      
+      # penal codes into multiple rows
+      penalcodes <- input$select_penalcode
+      if (length(penalcodes) == 0) penalcodes <- NA_character_
+      
+      df <- do.call(rbind, lapply(penalcodes, function(code) {
+        data.frame(
+          userID         = userID,
+          county         = input$select_county,
+          race           = input$select_race,
+          yearoffense    = input$select_yearoffense,
+          penalcode      = code,
+          sentencelen    = input[[paste0("sentencelen_", code)]],
+          sentencemonths = input[[paste0("sentencemonths_", code)]],
+          servedconsec   = input[[paste0("servedconsec_", code)]],
+          natorigin      = input$select_natorigin,
+          timestamp      = Sys.Date(),
+          stringsAsFactors = FALSE
+        )
+      }))
+      
+      # Save to CSV
       if (!file.exists(file_path)) {
         write.csv(df, file_path, row.names = FALSE)
       } else {
         write.table(df, file_path, sep = ",", col.names = FALSE,
                     row.names = FALSE, append = TRUE)
       }
-      # --- End CSV save ---
+      
+      
       
       # --- Render the report ---
-      tempReport <- file.path(tempdir(), "report.Rmd")
-      file.copy("report.Rmd", tempReport, overwrite = TRUE)
-      
-      # enh_val <- if (length(input$select_enhancements) == 0) {
-      #   "None Selected"
-      # } else {
-      #   paste(input$select_enhancements, collapse = ", ")
-      # }
+      tempReport <- file.path(tempdir(), "report.Rmd") 
+      file.copy("report.Rmd", tempReport, overwrite = TRUE) 
       
       rmarkdown::render(
         input = tempReport,
@@ -143,7 +153,6 @@ function(input, output, session) {
           race         = input$select_race,
           yearoffense  = input$select_yearoffense,
           penalcode    = input$select_penalcode,
-          # enhancements = enh_val,
           natorigin    = input$select_natorigin
         ),
         envir = new.env(parent = globalenv())

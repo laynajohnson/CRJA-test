@@ -7,7 +7,7 @@ params:
   yearoffense: "Year of Offense Not Selected"
   penalcode: "Penal Code Not Selected"
   race: "Race/Ethnicity Not Selected"
-  natorigin: "National Origin Not Selected"
+  natorigin: "Place of Birth Not Selected"
 ---
 
 # Test
