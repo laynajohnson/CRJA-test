@@ -2,4 +2,5 @@
 
 App and associated files to test shiny for features of CRJA dashboard
 
-*QSIDE Institute*
+CRJA-app folder contains important stuff
+
