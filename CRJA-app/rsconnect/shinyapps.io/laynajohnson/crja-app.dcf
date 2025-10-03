@@ -5,7 +5,7 @@ account: laynajohnson
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 15160116
-bundleId:
+bundleId: 10975571
 url: https://laynajohnson.shinyapps.io/crja-app/
 version: 1
 asMultiple: FALSE
